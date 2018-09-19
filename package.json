@@ -1,0 +1,15 @@
+{
+  "name": "my_seal",
+  "version": "0.0.1",
+  "description": "通过canvas制作印章（公司公章或个人印章）",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "canvas",
+    "印章"
+  ],
+  "author": "weijianjun1991",
+  "license": "MIT"
+}
