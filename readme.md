@@ -39,7 +39,8 @@ id: canvas的id
 option: 配置对象{
   color: String(颜色，关键字或十六进制颜色字符),
   fontFamily: String(字体，默认宋体),
-  personName: String(名称，默认为 张三)
+  personName: String(名称，默认为 张三),
+  type: Number(类型(1: 正方形，2: 长方形)，默认为 1)
 }
 seal.saveSealImg(): 将图片转化成 base64
 ```
@@ -47,4 +48,5 @@ seal.saveSealImg(): 将图片转化成 base64
 ## 更新
 
 1. 添加保存功能
-2. 公司公章可以调整半径大小，可添加防伪码（工商码）
+2. 公司公章可以调整半径大小，可添加防伪码
+3. 个人印章可以设置类型

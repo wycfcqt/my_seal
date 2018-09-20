@@ -2,7 +2,7 @@
  * @Author: jianjun.wei
  * @Date: 2018-09-19 14:47:15
  * @Last Modified by: jianjun.wei
- * @Last Modified time: 2018-09-20 12:02:36
+ * @Last Modified time: 2018-09-20 18:11:26
  */
 
 /**
@@ -40,13 +40,13 @@ function CompanySeal(id, option) {
   /* 默认根据半径进行设置 */
 
   // 边框线的宽度
-  this.lineWidth = 0.06 * this.radius; // 4.5
+  this.lineWidth = 4 / 75 * this.radius;
   // 文字与外边框线的距离
   this.lineTextGap = 0.73;
   // 公司名称字体大小
-  this.companyNameFontSize = 0.23 * this.radius;
+  this.companyNameFontSize = 17 / 75 * this.radius;
   // 印章类型名称字体大小
-  this.typeNameFontSize = 0.16 * this.radius;
+  this.typeNameFontSize = 11 / 75 * this.radius;
   //
   this.securityCodeFontSize = 0.12 * this.radius;
   // 内边框线的宽度
@@ -59,7 +59,6 @@ function CompanySeal(id, option) {
   this.startIndex = this.companyName.length - 1;
   // 起始位置
   this.startPos = this.aStartPos[this.startIndex];
-
 
   // 初始化
   this._init();
@@ -76,13 +75,13 @@ CompanySeal.prototype = {
     }
     this._drawStar();
     if (this.companyName) {
-      this._drawCompanyName(this.companyName);
+      this._drawCompanyName();
     }
     if (this.typeName) {
-      this._drawTypeName(this.typeName);
+      this._drawTypeName();
     }
     if (this.securityCode) {
-      this._drawSecurityCode(this.securityCode);
+      this._drawSecurityCode();
     }
   },
   _drawOuterLine: function () {
@@ -143,8 +142,11 @@ CompanySeal.prototype = {
     this.ctx.fill();
     this.ctx.restore();
   },
-  _drawCompanyName: function (companyName) {
-    this._drawText(companyName, this.companyNameFontSize, false, false);
+  _drawCompanyName: function () {
+    if (this.companyName.length > 19) {
+      throw new RangeError('公司名称最多只能为19个字符！');
+    }
+    this._drawText(this.companyName, this.companyNameFontSize, false, false);
   },
   _drawText: function (text, fontSize, isTypeName, isSecurityCode) {
     var i, letter;
@@ -178,11 +180,20 @@ CompanySeal.prototype = {
     this.ctx.fillText(letter, x, y);
     this.ctx.restore();
   },
-  _drawTypeName: function (typeName) {
-    this._drawText(typeName, this.typeNameFontSize, true, false);
+  _drawTypeName: function () {
+    if (typeof this.typeName !== 'string') {
+      throw new TypeError('印章类型名称只能为字符串！');
+    }
+    this._drawText(this.typeName, this.typeNameFontSize, true, false);
   },
-  _drawSecurityCode: function (code) {
-    this._drawText(code, this.securityCodeFontSize, false, true);
+  _drawSecurityCode: function () {
+    if (typeof this.securityCode !== 'string') {
+      throw new TypeError('防伪码只能为字符串！');
+    }
+    if (this.securityCode.length !== 13) {
+      throw new RangeError('防伪码只能为13位！');
+    }
+    this._drawText(this.securityCode, this.securityCodeFontSize, false, true);
   },
   saveSealImg: function () {
     return this.canvas.toDataURL();
@@ -197,74 +208,116 @@ CompanySeal.prototype = {
 function PersonSeal(id, option) {
   this.canvas = document.querySelector(id);
   this.ctx = this.canvas.getContext('2d');
+
   option = option || {};
+  // 中心点位置
+  this.centerPoint = this.canvas.width / 2;
+  // 类型
+  this.type = option.type || 1;
+  // 名称
   this.personName = option.personName || '张三';
-  this.fontFamily = option.fontFamily || '宋体';
+  // 字体
+  this.fontFamily = option.fontFamily || '隶书';
+  // 颜色
   this.color = option.color || '#e60021';
+  // 边框线宽度
   this.personLineWidth = 4;
+  // 字体大小
   this.personNameFontSize = 40;
+  // 字与边框的距离
+  this.lineTextGap = 4;
+  // 边框左上角的位置
+  this.leftTopPointX = this.leftTopPointY = -(this.personNameFontSize + this.lineTextGap);
+  // 边框右下角的位置
+  this.rightBottomPointX = this.rightBottomPointY = 2 * (this.personNameFontSize + this.lineTextGap);
+  // 字体加粗
   this.fontWeight = 'bold';
+  // textPoint
+  this.textPoint = this.personNameFontSize / 2;
+
   this._init();
 }
 
 PersonSeal.prototype = {
   constructor: PersonSeal,
   _init: function () {
-    this._drawPersonOuterLine();
-    this._drawPersonName();
+    switch (this.type) {
+      case 1:
+        this._drawPersonNameTypeOne();
+        this._drawPersonOuterLineTypeOne();
+        break;
+      case 2:
+        this._drawPersonNameTypeTwo();
+        this._drawPersonOuterLineTypeTwo();
+        break;
+    }
   },
-  _drawPersonOuterLine: function () {
+  _drawPersonOuterLineTypeOne: function () {
     this.ctx.save();
     this.ctx.strokeStyle = this.color;
     this.ctx.lineWidth = this.personLineWidth;
+    this.ctx.translate(this.centerPoint, this.centerPoint);
     this.ctx.beginPath();
-    this.ctx.strokeRect(30, 30, 90, 90);
+    this.ctx.strokeRect(this.leftTopPointX, this.leftTopPointY, this.rightBottomPointX, this.rightBottomPointY);
     this.ctx.stroke();
     this.ctx.restore();
   },
-  _drawPersonName: function () {
+  _drawPersonNameTypeOne: function () {
     var length = this.personName.length;
+    if (length < 2 || length > 4) {
+      throw new RangeError('名称只能为2~4个字符！');
+    }
+    if (typeof this.personName !== 'string') {
+      throw new TypeError('只能是字符串！');
+    }
     switch (length) {
       case 2:
-        this.ctx.save();
-        this.ctx.fillStyle = this.color;
-        this.ctx.textBaseline = 'middle';
-        this.ctx.textAlign = 'center';
-        this.ctx.font = 'normal normal ' + this.fontWeight + ' ' + this.personNameFontSize +
-          'px ' + this.fontFamily;
-        this.ctx.fillText(this.personName.charAt(0), 95, 55);
-        this.ctx.fillText(this.personName.charAt(1), 95, 95);
-        this.ctx.fillText('之', 55, 55);
-        this.ctx.fillText('印', 55, 95);
-        this.ctx.restore();
+        this.personName += '之印';
         break;
       case 3:
-        this.ctx.save();
-        this.ctx.fillStyle = this.color;
-        this.ctx.textBaseline = 'middle';
-        this.ctx.textAlign = 'center';
-        this.ctx.font = 'normal normal ' + this.fontWeight + ' ' + this.personNameFontSize +
-          'px ' + this.fontFamily;
-        this.ctx.fillText(this.personName.charAt(0), 95, 55);
-        this.ctx.fillText(this.personName.charAt(1), 95, 95);
-        this.ctx.fillText(this.personName.charAt(2), 55, 55);
-        this.ctx.fillText('印', 55, 95);
-        this.ctx.restore();
-        break;
-      case 4:
-        this.ctx.save();
-        this.ctx.fillStyle = this.color;
-        this.ctx.textBaseline = 'middle';
-        this.ctx.textAlign = 'center';
-        this.ctx.font = 'normal normal ' + this.fontWeight + ' ' + this.personNameFontSize +
-          'px ' + this.fontFamily;
-        this.ctx.fillText(this.personName.charAt(0), 95, 55);
-        this.ctx.fillText(this.personName.charAt(1), 95, 95);
-        this.ctx.fillText(this.personName.charAt(2), 55, 55);
-        this.ctx.fillText(this.personName.charAt(3), 55, 95);
-        this.ctx.restore();
+        this.personName += '印';
         break;
     }
+    this._drawLetterTypeOne();
+  },
+  _drawLetterTypeOne: function () {
+    this.ctx.save();
+    this.ctx.fillStyle = this.color;
+    this.ctx.textBaseline = 'middle';
+    this.ctx.textAlign = 'center';
+    this.ctx.font = 'normal normal bold ' + this.personNameFontSize + 'px ' + this.fontFamily;
+    this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+    this.ctx.fillText(this.personName.charAt(0), this.textPoint, -this.textPoint);
+    this.ctx.fillText(this.personName.charAt(1), this.textPoint, this.textPoint);
+    this.ctx.fillText(this.personName.charAt(2), -this.textPoint, -this.textPoint);
+    this.ctx.fillText(this.personName.charAt(3), -this.textPoint, this.textPoint);
+    this.ctx.restore();
+  },
+  _drawPersonOuterLineTypeTwo: function () {
+    var length = this.personName.length,
+      width = length * this.personNameFontSize;
+    this.leftTopPointX = -(width / 2 + this.lineTextGap);
+    this.leftTopPointY = -(this.personNameFontSize / 2 + this.lineTextGap);
+    this.rightBottomPointX = -2 * this.leftTopPointX;
+    this.rightBottomPointY = -2 * this.leftTopPointY;
+    this._drawPersonOuterLineTypeOne();
+  },
+  _drawPersonNameTypeTwo: function () {
+    this.personNameFontSize = 32;
+    var length = this.personName.length;
+    if (length < 2 || length > 4) {
+      throw new RangeError('名称只能为2~4个字符！');
+    }
+    if (typeof this.personName !== 'string') {
+      throw new TypeError('只能是字符串！');
+    }
+    this.ctx.save();
+    this.ctx.fillStyle = this.color;
+    this.ctx.textBaseline = 'middle';
+    this.ctx.textAlign = 'center';
+    this.ctx.font = 'normal normal bold ' + this.personNameFontSize + 'px ' + this.fontFamily;
+    this.ctx.fillText(this.personName, this.centerPoint, this.centerPoint);
+    this.ctx.restore();
   },
   saveSealImg: function () {
     return this.canvas.toDataURL();
