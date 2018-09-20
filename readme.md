@@ -17,7 +17,7 @@ var seal = new CompanySeal(id, option) {
 id: canvas的id
 option: 配置对象{
   radius: number(半径，默认值75),
-  color: String(颜色，关键字或十六进制颜色字符),
+  color: String(颜色，关键字或十六进制颜色字符，默认 红色),
   fontFamily: String(字体，默认宋体),
   companyName: String(公司名称，默认为 青岛国富金融资产交易中心),
   typeName: String(印章类型，可选),
