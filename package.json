@@ -1,6 +1,6 @@
 {
   "name": "my_seal",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "通过canvas制作印章（公司公章或个人印章）",
   "main": "index.js",
   "scripts": {
