@@ -37,7 +37,7 @@ var seal = new PersonSeal(id, option) {
 
 id: canvas的id
 option: 配置对象{
-  color: String(颜色，关键字或十六进制颜色字符),
+  color: String(颜色，关键字或十六进制颜色字符，默认 红色),
   fontFamily: String(字体，默认宋体),
   personName: String(名称，默认为 张三),
   type: Number(类型(1: 正方形，2: 长方形)，默认为 1)
